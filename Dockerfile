@@ -22,6 +22,9 @@ RUN strip target/x86_64-unknown-linux-musl/release/pandoc-rustful-api
 ###############
 FROM pandoc/latex:latest
 
+ENV ROCKET_PROFILE="release"
+ENV ROCKET_PORT=8000
+
 RUN addgroup -g 1000 webapp \
     && adduser -D -s /bin/sh -u 1000 -G webapp webapp
 
@@ -32,5 +35,5 @@ COPY Rocket.toml .
 # Switch to user and start the webservice
 USER webapp
 
-EXPOSE 8000
+EXPOSE ${ROCKET_PORT}
 ENTRYPOINT ["./pandoc-rustful-api"]
