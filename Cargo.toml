@@ -1,0 +1,9 @@
+[package]
+name = "pandoc-rustful-api"
+version = "0.1.0"
+authors = ["Christian Fries <christian.fries123@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+#rocket = 0.5
+rocket = {git = "https://github.com/SergioBenitez/Rocket", branch = "master"}
