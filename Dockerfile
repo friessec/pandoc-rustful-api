@@ -20,7 +20,7 @@ RUN strip target/x86_64-unknown-linux-musl/release/pandoc-rustful-api
 ###############
 # Web Container
 ###############
-FROM alpine:latest
+FROM pandoc/latex:latest
 
 RUN addgroup -g 1000 webapp \
     && adduser -D -s /bin/sh -u 1000 -G webapp webapp
@@ -33,4 +33,4 @@ COPY Rocket.toml .
 USER webapp
 
 EXPOSE 8000
-CMD ["./pandoc-rustful-api"]
+ENTRYPOINT ["./pandoc-rustful-api"]
