@@ -22,7 +22,7 @@ RUN strip target/x86_64-unknown-linux-musl/release/pandoc-rustful-api
 ###############
 FROM pandoc/latex:latest
 
-ENV ROCKET_PROFILE="release"
+ENV ROCKET_PROFILE="production"
 ENV ROCKET_PORT=8000
 
 ARG TEMPLATE_DIR=/home/webapp/.pandoc/templates/

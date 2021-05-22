@@ -5,5 +5,10 @@ authors = ["Christian Fries <christian.fries123@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-#rocket = 0.5
-rocket = {git = "https://github.com/SergioBenitez/Rocket", branch = "master"}
+rocket = "0.4.10"
+#rocket = {git = "https://github.com/SergioBenitez/Rocket", branch = "master"}
+rocket_okapi = "0.6.0-alpha-1"
+schemars = "0.8.3"
+okapi = { version = "0.5.0-alpha-1", features = ["derive_json_schema"] }
+serde = "1.0.126"
+zip = "0.5"

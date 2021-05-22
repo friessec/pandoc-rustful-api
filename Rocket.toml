@@ -1,12 +1,12 @@
 [global]
 
-[debug]
+[development]
 address = "127.0.0.1"
 log_level = "debug"
 port = 8000
 pandoc_binary="/usr/bin/pandoc"
 
-[release]
+[production]
 address = "0.0.0.0"
 log_level = "normal"
 port = 8000
