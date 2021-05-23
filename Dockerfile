@@ -9,6 +9,7 @@ RUN apt-get update \
 
 RUN rustup target add x86_64-unknown-linux-musl --toolchain=nightly
 
+# Current provided rust version is older than expected
 RUN rustup update
 
 WORKDIR /usr/src/webapp
