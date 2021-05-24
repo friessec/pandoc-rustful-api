@@ -14,8 +14,9 @@ serde = "1.0.126"
 serde_json = { version = "1.0.64", features = ["preserve_order"] }
 chrono = { version="0.4.19", features = ["serde"] }
 zip = "0.5"
+uuid = { version="0.8.2", features = ["serde", "v4"] }
 
 [dependencies.rocket_contrib]
 version = "0.4.3"
 default-features = false
-features = ["json"]
+features = ["json", "uuid", "helmet", "serde"]
