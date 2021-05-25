@@ -13,14 +13,6 @@ use rocket_okapi::swagger_ui::{SwaggerUIConfig, make_swagger_ui};
 pub mod routes;
 pub mod models;
 
-//use rocket::Data;
-//use rocket::http::ContentType;
-// #[openapi(skip)]
-// #[post("/generate", data = "<file>")]
-// fn post_generate(content_type: &ContentType, file: Data) -> String {
-//     // let byt = file.open(10.megabytes());
-//     content_type.to_string()
-// }
 
 fn main() {
     rocket::ignite()
@@ -32,6 +24,9 @@ fn main() {
                 routes::v1::pandoc::jobs::create,
                 routes::v1::pandoc::job::job::get,
                 routes::v1::pandoc::job::job::delete,
+                routes::v1::pandoc::job::actions::upload,
+                routes::v1::pandoc::job::actions::generate,
+                routes::v1::pandoc::job::actions::progress,
             ]
         )
         .mount(
