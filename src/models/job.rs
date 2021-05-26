@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-//use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc};
 use schemars::JsonSchema;
 
 
@@ -7,4 +7,5 @@ use schemars::JsonSchema;
 #[serde(rename_all = "camelCase")]
 pub struct Job {
     pub id: String,
+    pub creationDate: DateTime<Utc>,
 }

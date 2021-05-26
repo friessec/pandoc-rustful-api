@@ -1,7 +1,8 @@
 use rocket_contrib::json::Json;
 use uuid::Uuid;
-use crate::models::job::Job;
+use chrono::Utc;
 
+use crate::models::job::Job;
 
 
 #[openapi]
@@ -11,10 +12,12 @@ pub fn jobs() -> Json<Vec<Job>> {
 
    jobs.push(Job {
       id: Uuid::new_v4().to_string(),
+      creationDate: Utc::now(),
    });
 
    jobs.push(Job {
       id: Uuid::new_v4().to_string(),
+      creationDate: Utc::now(),
    });
 
    Json(jobs)
@@ -25,5 +28,6 @@ pub fn jobs() -> Json<Vec<Job>> {
 pub fn create() -> Json<Job> {
    Json( Job {
       id: Uuid::new_v4().to_string(),
+      creationDate: Utc::now(),
    })
 }
