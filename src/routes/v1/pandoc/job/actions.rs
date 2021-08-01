@@ -6,9 +6,9 @@ use crate::models::job::Job;
 use rocket_okapi::request::OpenApiFromData;
 
 
-#[openapi(skip)]  // TODO document with data
+#[openapi(tag = "Jobs")]
 #[post("/jobs/<uuid>/upload",
-      data = "<data>")]
+       data = "<data>")]
 pub fn upload(uuid: String,
               content_type: &ContentType,
               data: Data) -> String {
