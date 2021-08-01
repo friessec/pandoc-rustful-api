@@ -16,14 +16,14 @@ pub fn upload(uuid: String,
     content_type.to_string()
 }
 
-#[openapi]
+#[openapi(tag = "Jobs")]
 #[post("/jobs/<uuid>/generate")]
 pub fn generate(uuid: String) -> String {
 
     "".to_string()
 }
 
-#[openapi]
+#[openapi(tag = "Jobs")]
 #[get("/jobs/<uuid>/progress")]
 pub fn progress(uuid: String) -> String {
 

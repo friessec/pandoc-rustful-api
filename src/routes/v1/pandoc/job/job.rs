@@ -6,7 +6,7 @@ use chrono::Utc;
 use crate::models::job::Job;
 
 
-#[openapi]
+#[openapi(tag = "Jobs")]
 #[get("/jobs/<uuid>")]
 pub fn get(uuid: String) -> Json<Job> {
     Json( Job {
@@ -15,7 +15,7 @@ pub fn get(uuid: String) -> Json<Job> {
     })
 }
 
-#[openapi]
+#[openapi(tag = "Jobs")]
 #[delete("/jobs/<uuid>")]
 pub fn delete(uuid: String) -> Json<Job> {
     Json( Job {
