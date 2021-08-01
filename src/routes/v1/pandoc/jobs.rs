@@ -1,11 +1,11 @@
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use uuid::Uuid;
 use chrono::Utc;
 
 use crate::models::job::Job;
 
 
-#[openapi]
+#[openapi(tag = "Jobs")]
 #[get("/jobs")]
 pub fn jobs() -> Json<Vec<Job>> {
    let mut jobs = Vec::new();
@@ -23,7 +23,7 @@ pub fn jobs() -> Json<Vec<Job>> {
    Json(jobs)
 }
 
-#[openapi]
+#[openapi(tag = "Jobs")]
 #[post("/jobs")]
 pub fn create() -> Json<Job> {
    Json( Job {
