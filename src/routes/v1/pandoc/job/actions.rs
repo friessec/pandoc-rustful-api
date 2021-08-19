@@ -1,9 +1,7 @@
-use rocket_contrib::json::Json;
 use rocket::Data;
 use rocket::http::ContentType;
 
 use crate::models::job::Job;
-use rocket_okapi::request::OpenApiFromData;
 
 
 #[openapi(tag = "Jobs")]

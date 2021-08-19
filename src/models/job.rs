@@ -6,5 +6,5 @@ use schemars::JsonSchema;
 #[serde(rename_all = "camelCase")]
 pub struct Job {
     pub id: String,
-    pub creationDate: DateTime<chrono::Utc>,
+    pub creation_date: DateTime<chrono::Utc>,
 }

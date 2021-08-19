@@ -11,7 +11,7 @@ use crate::models::job::Job;
 pub fn get(uuid: String) -> Json<Job> {
     Json( Job {
         id: uuid,
-        creationDate: Utc::now()
+        creation_date: Utc::now()
     })
 }
 
@@ -20,6 +20,6 @@ pub fn get(uuid: String) -> Json<Job> {
 pub fn delete(uuid: String) -> Json<Job> {
     Json( Job {
         id: uuid,
-        creationDate: Utc::now(),
+        creation_date: Utc::now(),
     })
 }
