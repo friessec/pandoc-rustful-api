@@ -7,12 +7,12 @@ extern crate serde;
 extern crate serde_json;
 
 use rocket_okapi::swagger_ui::{SwaggerUIConfig, make_swagger_ui};
+use rocket::{Rocket, Build};
 
 pub mod routes;
 pub mod models;
 
-#[rocket::main]
-async fn main() {
+fn rocket() -> Rocket<Build> {
     rocket::build()
         .mount(
             "/api/v1/",
@@ -33,6 +33,14 @@ async fn main() {
                 ..Default::default()
             })
         )
+}
+
+#[rocket::main]
+async fn main() {
+    if let Err(e) = rocket()
         .launch()
-        .await;
+        .await {
+        eprintln!("Failed  to launch rocket! Port already used?");
+        drop(e);
+    }
 }

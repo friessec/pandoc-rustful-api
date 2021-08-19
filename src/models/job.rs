@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use schemars::JsonSchema;
 
 #[derive(Serialize, Deserialize, JsonSchema)]
