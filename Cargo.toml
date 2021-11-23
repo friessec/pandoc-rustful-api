@@ -6,11 +6,13 @@ edition = "2018"
 
 [dependencies]
 rocket = "0.5.0-rc.1"
-rocket_okapi = "0.7.0-alpha-1"
 schemars = {version = "0.8.3", features = ["preserve_order", "chrono"]}
-okapi = { version = "0.6.0-alpha-1", features = ["derive_json_schema"] }
 serde = "1.0"
 serde_json = { version = "1.0", features = ["preserve_order"] }
 chrono = { version="0.4", features = ["serde"] }
 zip = "0.5"
 uuid = { version="0.8", features = ["serde", "v4"] }
+
+[dependencies.rocket_okapi]
+version = "0.8.0-rc.1"
+features = ["swagger"]

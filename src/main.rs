@@ -16,7 +16,7 @@ fn rocket() -> Rocket<Build> {
     rocket::build()
         .mount(
             "/api/v1/",
-            routes_with_openapi![
+            openapi_get_routes![
                 routes::v1::pandoc::jobs::jobs,
                 routes::v1::pandoc::jobs::create,
                 routes::v1::pandoc::job::job::get,
