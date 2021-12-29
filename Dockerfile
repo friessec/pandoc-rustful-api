@@ -28,8 +28,8 @@ RUN strip target/x86_64-unknown-linux-musl/release/pandoc-rustful-api
 ###############
 FROM pandoc/latex:latest
 
-ENV ROCKET_PROFILE="production"
-ENV ROCKET_PORT=8000
+ENV ACTIX_PROFILE="production"
+ENV ACTIX_PORT=8000
 
 ARG TEMPLATE_DIR=/home/webapp/.pandoc/templates/
 ARG EISVOGEL_GIT=https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template
@@ -78,7 +78,7 @@ RUN addgroup -g 1000 webapp \
 
 WORKDIR /home/webapp/app/
 COPY --chown=webapp:webapp --from=builder /usr/src/webapp/target/x86_64-unknown-linux-musl/release/pandoc-rustful-api .
-COPY Rocket.toml .
+COPY Settings.toml .
 
 # Switch to user and start the webservice
 USER webapp
@@ -89,5 +89,5 @@ RUN mkdir -p ${TEMPLATE_DIR} \
 # Deploy templates
 RUN wget ${EISVOGEL_GIT}/v${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATE_DIR}/eisvogel.latex
 
-EXPOSE ${ROCKET_PORT}
+EXPOSE ${ACTIX_PORT}
 ENTRYPOINT ["/home/webapp/app/pandoc-rustful-api"]
