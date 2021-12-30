@@ -1,46 +1,17 @@
 #[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate rocket_okapi;
+extern crate actix_web;
 
-extern crate serde;
-extern crate serde_json;
+mod routes;
 
-use rocket_okapi::swagger_ui::{SwaggerUIConfig, make_swagger_ui};
-use rocket::{Rocket, Build};
+use actix_web::{get, App, HttpServer, Responder};
 
-pub mod routes;
-pub mod models;
-
-fn rocket() -> Rocket<Build> {
-    rocket::build()
-        .mount(
-            "/api/v1/",
-            openapi_get_routes![
-                routes::v1::pandoc::jobs::jobs,
-                routes::v1::pandoc::jobs::create,
-                routes::v1::pandoc::job::job::get,
-                routes::v1::pandoc::job::job::delete,
-                routes::v1::pandoc::job::actions::upload,
-                routes::v1::pandoc::job::actions::generate,
-                routes::v1::pandoc::job::actions::progress,
-            ]
-        )
-        .mount(
-            "/swagger-ui/",
-            make_swagger_ui(&SwaggerUIConfig {
-                url: "/api/v1/openapi.json".to_owned(),
-                ..Default::default()
-            })
-        )
-}
-
-#[rocket::main]
-async fn main() {
-    if let Err(e) = rocket()
-        .launch()
-        .await {
-        eprintln!("Failed  to launch rocket! Port already used?");
-        drop(e);
-    }
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(move || {
+        App::new()
+            .configure(routes::api::api_configuration)
+    })
+        .bind("127.0.0.1:8080")?
+        .run()
+        .await
 }
