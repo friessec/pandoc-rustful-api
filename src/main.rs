@@ -1,9 +1,8 @@
-#[macro_use]
 extern crate actix_web;
 
 mod routes;
 
-use actix_web::{get, App, HttpServer, Responder};
+use actix_web::{App, HttpServer};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
