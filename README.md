@@ -10,3 +10,7 @@ Pandoc RESTful API written in Rust
 docker build -t pandoc-rustful-api .
 docker run -p 8000:8000 pandoc-rustful-api
 ```
+
+## Swagger-UI
+
+http://localhost:8080/swagger-ui/

@@ -1,7 +1,7 @@
 use crate::routes::v1::*;
-use actix_web::web;
+use paperclip::actix::web;
 
-pub fn api_configuration(cfg: &mut web::ServiceConfig) {
+pub fn configuration(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api/v1")
             .service(
