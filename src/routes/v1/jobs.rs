@@ -5,33 +5,17 @@ use paperclip::actix::{
 };
 
 use crate::models::job::Job;
+use crate::services::job_service;
 
 #[api_v2_operation]
 pub async fn job_list() -> Result<Json<Vec<Job>>, ()> {
-    // TODO currently always the same folder is listed
-    let uuid = uuid::Uuid::parse_str("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-    let id = match uuid {
-        Ok(uuid) => Some(uuid),
-        Err(_) => None,
-    };
-    let job = Job {
-        id,
-    };
-    Ok(Json(vec!(job)))
+    Ok(job_service::find_all())
 }
 
 #[api_v2_operation]
 pub async fn job_create() -> Result<Json<Job>, ()> {
-    // TODO currently always the same folder is used
-    let uuid = uuid::Uuid::parse_str("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-    let id = match uuid {
-        Ok(uuid) => Some(uuid),
-        Err(_) => None,
-    };
-    let job = Job {
-        id,
-    };
-    Ok(Json(job))
+    let job = job_service::create();
+    Ok(job)
 }
 
 #[api_v2_operation]
