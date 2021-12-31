@@ -2,6 +2,7 @@ extern crate actix_web;
 extern crate log;
 
 mod routes;
+mod models;
 
 use actix_web::{App, HttpServer};
 use paperclip::actix::OpenApiExt;

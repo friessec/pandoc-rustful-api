@@ -13,4 +13,8 @@ log = "0.4"
 
 [dependencies.paperclip]
 version = "0.6"
-features = ["actix"]
+features = ["actix", "uuid"]
+
+[dependencies.uuid]
+version = "0.8"
+features = ["serde", "v4"]
