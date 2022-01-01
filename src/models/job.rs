@@ -1,10 +1,7 @@
 use serde::{Serialize, Deserialize};
-use chrono::DateTime;
-use schemars::JsonSchema;
+use paperclip::actix::Apiv2Schema;
 
-#[derive(Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[derive(Serialize, Deserialize, Apiv2Schema)]
 pub struct Job {
-    pub id: String,
-    pub creation_date: DateTime<chrono::Utc>,
+    pub id: Option<uuid::Uuid>,
 }
