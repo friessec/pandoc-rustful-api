@@ -63,6 +63,23 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>, mut payload: Multipart) -> R
 
 #[api_v2_operation]
 pub async fn job_process(path: Path<(uuid::Uuid, )>) -> Result<HttpResponse, Error> {
+    let id = path.into_inner().0;
+    let filepath = format!("{}/{}", DEFAULT_WORKDIR, id);
+    let pandoc_cmd = format!(r#"pandoc {} \
+        -o report.pdf\
+        --from markdown+yaml_metadata_block+raw_html \
+        --template eisvogel.tex \
+        --table-of-contents \
+        --toc-depth 6 \
+        --number-sections \
+        --top-level-division=chapter \
+        --highlight-style breezedark"#, "report.md", );
+
+    web::block(move || std::process::Command::new("sh")
+        .arg("-c")
+        .arg(pandoc_cmd)
+        .current_dir(filepath)
+        .output()).await?;
 
     Ok(HttpResponse::Ok().into())
 }
