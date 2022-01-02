@@ -115,6 +115,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-multipart"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "774bfeb11b54bf9c857a005b8ab893293da4eaff79261a66a9200dab7f5ab6e3"
+dependencies = [
+ "actix-service",
+ "actix-utils",
+ "actix-web",
+ "bytes 0.5.6",
+ "derive_more",
+ "futures-util",
+ "httparse",
+ "log",
+ "mime",
+ "twoway",
+]
+
+[[package]]
 name = "actix-router"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1092,10 +1110,13 @@ name = "pandoc-rustful-api"
 version = "0.1.0"
 dependencies = [
  "actix-files",
+ "actix-multipart",
  "actix-web",
  "env_logger",
+ "futures-util",
  "log",
  "paperclip",
+ "sanitize-filename",
  "serde",
  "uuid",
 ]
@@ -1144,6 +1165,7 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f83e598ac88b6bd499309669217ec6b1511f843de818d2a9b66e747424552daf"
 dependencies = [
+ "actix-multipart",
  "actix-web",
  "mime",
  "once_cell",
@@ -1425,6 +1447,16 @@ name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
+
+[[package]]
+name = "sanitize-filename"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf18934a12018228c5b55a6dae9df5d0641e3566b3630cb46cc55564068e7c2f"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
 
 [[package]]
 name = "scopeguard"
@@ -1842,10 +1874,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "twoway"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c57ffb460d7c24cd6eda43694110189030a3d1dfe418416d9468fd1c1d290b47"
+dependencies = [
+ "memchr",
+ "unchecked-index",
+]
+
+[[package]]
 name = "typenum"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcf81ac59edc17cc8697ff311e8f5ef2d99fcbd9817b34cec66f90b6c3dfd987"
+
+[[package]]
+name = "unchecked-index"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eeba86d422ce181a719445e51872fa30f1f7413b62becb52e95ec91aa262d85c"
 
 [[package]]
 name = "unicase"
