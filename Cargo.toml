@@ -2,13 +2,22 @@
 name = "pandoc-rustful-api"
 version = "0.1.0"
 authors = ["Christian Fries <christian.fries123@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-rocket = "0.4.10"
-#rocket = {git = "https://github.com/SergioBenitez/Rocket", branch = "master"}
-rocket_okapi = "0.6.0-alpha-1"
-schemars = "0.8.3"
-okapi = { version = "0.5.0-alpha-1", features = ["derive_json_schema"] }
-serde = "1.0.126"
-zip = "0.5"
+actix-web = "3"
+actix-files = "0.5"
+actix-multipart = "0.3"
+serde = "1.0"
+env_logger = "0.9"
+log = "0.4"
+sanitize-filename = "0.3"
+futures-util = "0.3"
+
+[dependencies.paperclip]
+version = "0.6"
+features = ["actix", "actix-multipart", "uuid"]
+
+[dependencies.uuid]
+version = "0.8"
+features = ["serde", "v4"]
