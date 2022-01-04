@@ -5,8 +5,8 @@ use futures_util::TryStreamExt as _;
 use paperclip::actix::{api_v2_operation, web, web::Json, web::Path};
 use paperclip::actix::web::HttpResponse;
 use uuid::Uuid;
-use crate::DEFAULT_WORKDIR;
 
+use crate::AppSettings;
 use crate::models::job::Job;
 use crate::services::job_service;
 
@@ -16,8 +16,8 @@ pub async fn job_list() -> Result<Json<Vec<Job>>, ()> {
 }
 
 #[api_v2_operation]
-pub async fn job_create() -> Result<Json<Job>, ()> {
-    let job = job_service::create();
+pub async fn job_create(config: web::Data<AppSettings>) -> Result<Json<Job>, ()> {
+    let job = job_service::create(config.pandoc.workdir.as_str());
     Ok(job)
 }
 
@@ -38,7 +38,7 @@ pub async fn job_delete(path: Path<(uuid::Uuid, )>) -> Result<Json<Job>, ()> {
 }
 
 #[api_v2_operation]
-pub async fn job_upload(path: Path<(uuid::Uuid, )>, mut payload: Multipart) -> Result<HttpResponse, Error> {
+pub async fn job_upload(path: Path<(uuid::Uuid, )>, config: web::Data<AppSettings>, mut payload: Multipart) -> Result<HttpResponse, Error> {
     let id = path.into_inner().0;
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition = field
@@ -50,7 +50,7 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>, mut payload: Multipart) -> R
             |file| sanitize_filename::sanitize(file),
         );
 
-        let filepath = format!("{}/{}/{}", DEFAULT_WORKDIR, id, filename);
+        let filepath = format!("{}/{}/{}", config.pandoc.workdir, id, filename);
 
         let mut file = web::block(|| std::fs::File::create(filepath)).await?;
         while let Some(chunk) = field.try_next().await? {
@@ -62,9 +62,9 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>, mut payload: Multipart) -> R
 }
 
 #[api_v2_operation]
-pub async fn job_process(path: Path<(uuid::Uuid, )>) -> Result<HttpResponse, Error> {
+pub async fn job_process(path: Path<(uuid::Uuid, )>, config: web::Data<AppSettings>) -> Result<HttpResponse, Error> {
     let id = path.into_inner().0;
-    let filepath = format!("{}/{}", DEFAULT_WORKDIR, id);
+    let filepath = format!("{}/{}", config.pandoc.workdir, id);
     let pandoc_cmd = format!(r#"pandoc {} \
         -o report.pdf\
         --from markdown+yaml_metadata_block+raw_html \
