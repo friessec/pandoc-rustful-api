@@ -1,7 +1,7 @@
 use crate::constants::*;
 use serde::Deserialize;
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Deserialize, Debug)]
 pub enum ConfigType {
     Development,
     Staging,
@@ -16,10 +16,10 @@ impl Default for ConfigType {
 }
 
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct PandocSettings {
-    binary: String,
-    workdir: String,
+    pub binary: String,
+    pub workdir: String,
 }
 
 impl Default for PandocSettings {
@@ -32,7 +32,7 @@ impl Default for PandocSettings {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug)]
 pub struct AppSettings {
     #[serde(default)]
     pub config: ConfigType,

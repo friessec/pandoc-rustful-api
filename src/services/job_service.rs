@@ -1,11 +1,10 @@
 use std::path::{Path, PathBuf};
 use actix_web::web::Json;
 use uuid::Uuid;
-use crate::DEFAULT_WORKDIR;
 use crate::models::job::Job;
 
-fn job_dir(id: &str) -> PathBuf {
-    let workdir = Path::new(DEFAULT_WORKDIR);
+fn job_dir(id: &str, path: &str) -> PathBuf {
+    let workdir = Path::new(path);
     let job_dir = workdir.join(id);
 
     job_dir
@@ -37,7 +36,7 @@ pub fn find_all() -> Json<Vec<Job>> {
     Json(vec!(job))
 }
 
-pub fn create() -> Json<Job> {
+pub fn create(workdir: &str) -> Json<Job> {
     // TODO currently always the same folder is used
     let uuid = uuid::Uuid::parse_str("3fa85f64-5717-4562-b3fc-2c963f66afa6");
     let id = match uuid {
@@ -45,7 +44,7 @@ pub fn create() -> Json<Job> {
         Err(_) => None,
     };
 
-    let path = job_dir(id.unwrap().to_string().as_str());
+    let path = job_dir(id.unwrap().to_string().as_str(), workdir);
 
 
     match std::fs::create_dir(path.clone()) {
