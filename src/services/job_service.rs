@@ -11,12 +11,12 @@ fn job_dir(id: &str) -> PathBuf {
     job_dir
 }
 
-fn save_job(id: Uuid, job: Job) -> Job {
+fn save_job(_id: Uuid, job: Job) -> Job {
 
     job
 }
 
-fn load_job(id: Uuid) -> Job {
+fn load_job(_id: Uuid) -> Job {
     let job = Job {
         id: None,
     };

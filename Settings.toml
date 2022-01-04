@@ -1,13 +1,8 @@
-[global]
-
-[development]
-address = "127.0.0.1"
+port = 8000
+interface = "127.0.0.1"
 log_level = "debug"
-port = 8000
-pandoc_binary="/usr/bin/pandoc"
 
-[production]
-address = "0.0.0.0"
-log_level = "normal"
-port = 8000
-pandoc_binary="/usr/local/bin/pandoc"
+
+[pandoc]
+binary="/usr/bin/pandoc"
+workdir="/tmp/pandoc-workdir"
