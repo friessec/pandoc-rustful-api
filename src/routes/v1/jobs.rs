@@ -11,18 +11,21 @@ use crate::models::job::Job;
 use crate::services::job_service;
 
 #[api_v2_operation]
-pub async fn job_list() -> Result<Json<Vec<Job>>, ()> {
+pub async fn job_list()
+    -> Result<Json<Vec<Job>>, ()> {
     Ok(job_service::find_all())
 }
 
 #[api_v2_operation]
-pub async fn job_create(config: web::Data<AppSettings>) -> Result<Json<Job>, ()> {
+pub async fn job_create(config: web::Data<AppSettings>)
+                        -> Result<Json<Job>, ()> {
     let job = job_service::create(config.pandoc.workdir.as_str());
     Ok(job)
 }
 
 #[api_v2_operation]
-pub async fn job_get(path: Path<(uuid::Uuid, )>) -> Result<Json<Job>, ()> {
+pub async fn job_get(path: Path<(uuid::Uuid, )>)
+                     -> Result<Json<Job>, ()> {
     let job = Job {
         id: Option::from(path.into_inner().0),
     };
@@ -38,7 +41,9 @@ pub async fn job_delete(path: Path<(uuid::Uuid, )>) -> Result<Json<Job>, ()> {
 }
 
 #[api_v2_operation]
-pub async fn job_upload(path: Path<(uuid::Uuid, )>, config: web::Data<AppSettings>, mut payload: Multipart) -> Result<HttpResponse, Error> {
+pub async fn job_upload(path: Path<(uuid::Uuid, )>,
+                        config: web::Data<AppSettings>, mut payload: Multipart)
+                        -> Result<HttpResponse, Error> {
     let id = path.into_inner().0;
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition = field
@@ -62,7 +67,9 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>, config: web::Data<AppSetting
 }
 
 #[api_v2_operation]
-pub async fn job_process(path: Path<(uuid::Uuid, )>, config: web::Data<AppSettings>) -> Result<HttpResponse, Error> {
+pub async fn job_process(path: Path<(uuid::Uuid, )>,
+                         config: web::Data<AppSettings>)
+                         -> Result<HttpResponse, Error> {
     let id = path.into_inner().0;
     let filepath = format!("{}/{}", config.pandoc.workdir, id);
     let pandoc_cmd = format!(r#"pandoc {} \
