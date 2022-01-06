@@ -75,12 +75,14 @@ impl AppSettings {
         AppSettings::default()
     }
 
+    #[allow(dead_code)]
     pub fn load(&mut self, data: &str) -> Result<Self, ()> {
         let settings: AppSettings = toml::from_str(data).unwrap();
         let settings = self.merge(settings);
         Ok(settings)
     }
 
+    #[allow(dead_code)]
     fn merge(&self, mut _settings: AppSettings) -> AppSettings {
         todo!()
     }

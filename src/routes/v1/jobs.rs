@@ -21,15 +21,13 @@ pub async fn job_list()
 pub async fn job_create(config: web::Data<AppSettings>)
                         -> Result<Json<Job>, ()> {
     let job = job_service::create(config.pandoc.workdir.as_str());
-    Ok(job)
+    Ok(Json(job))
 }
 
 #[api_v2_operation]
 pub async fn job_get(path: Path<(uuid::Uuid, )>)
                      -> Result<Json<Job>, ()> {
-    let job = Job {
-        id: Option::from(path.into_inner().0),
-    };
+    let job = job_service::get(path.into_inner().0);
     Ok(Json(job))
 }
 

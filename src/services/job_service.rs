@@ -10,12 +10,12 @@ fn job_dir(id: &str, path: &str) -> PathBuf {
     job_dir
 }
 
-fn save_job(_id: Uuid, job: Job) -> Job {
+fn save_job(id: Uuid, job: Job) -> Job {
 
     job
 }
 
-fn load_job(_id: Uuid) -> Job {
+fn load_job(id: Uuid) -> Job {
     let job = Job {
         id: None,
     };
@@ -36,7 +36,7 @@ pub fn find_all() -> Json<Vec<Job>> {
     Json(vec!(job))
 }
 
-pub fn create(workdir: &str) -> Json<Job> {
+pub fn create(workdir: &str) -> Job {
     // TODO currently always the same folder is used
     let uuid = uuid::Uuid::parse_str("3fa85f64-5717-4562-b3fc-2c963f66afa6");
     let id = match uuid {
@@ -61,11 +61,11 @@ pub fn create(workdir: &str) -> Json<Job> {
         id,
     };
 
-    Json(save_job(uuid.unwrap(), job))
+    save_job(uuid.unwrap(), job)
 }
 
-pub fn get(id: Uuid) -> Json<Job> {
+pub fn get(id: Uuid) -> Job {
     let job = load_job(id);
 
-    Json(job)
+    job
 }
