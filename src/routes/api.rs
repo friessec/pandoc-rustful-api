@@ -24,6 +24,10 @@ pub fn configuration(cfg: &mut web::ServiceConfig) {
                         web::resource("/{id}/process")
                             .route(web::get().to(jobs::job_process))
                     )
+                    .service(
+                        web::resource("/{id}/download")
+                            .route(web::get().to(jobs::job_download))
+                    )
             )
     );
 }

@@ -1,4 +1,5 @@
 use std::io::Write;
+use actix_files::NamedFile;
 use actix_multipart::Multipart;
 use actix_web::Error;
 use futures_util::TryStreamExt as _;
@@ -82,11 +83,28 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
         --top-level-division=chapter \
         --highlight-style breezedark"#, "report.md", );
 
-    web::block(move || std::process::Command::new("sh")
+    log::debug!("In workdir: {}", filepath);
+    log::debug!("Run: {}", pandoc_cmd);
+
+    let output = web::block(move || std::process::Command::new("sh")
         .arg("-c")
         .arg(pandoc_cmd)
         .current_dir(filepath)
         .output()).await?;
+    if !output.status.success() {
+        log::error!("Pandoc error: {}", String::from_utf8(output.stderr).unwrap());
+        return Err(HttpResponse::InternalServerError().into());
+    }
 
     Ok(HttpResponse::Ok().into())
+}
+
+#[api_v2_operation]
+pub async fn job_download(path: Path<(uuid::Uuid, )>,
+                         config: web::Data<AppSettings>)
+                         -> Result<actix_files::NamedFile, Error> {
+    let id = path.into_inner().0;
+    let filepath = format!("{}/{}", config.pandoc.workdir, id);
+
+    Ok(NamedFile::open(filepath+"/report.pdf")?)
 }

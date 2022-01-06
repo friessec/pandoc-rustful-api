@@ -17,7 +17,7 @@ futures-util = "0.3"
 
 [dependencies.paperclip]
 version = "0.6"
-features = ["actix", "actix-multipart", "uuid"]
+features = ["actix", "actix-multipart", "actix-files", "uuid"]
 
 [dependencies.uuid]
 version = "0.8"

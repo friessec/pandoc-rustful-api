@@ -1166,6 +1166,7 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f83e598ac88b6bd499309669217ec6b1511f843de818d2a9b66e747424552daf"
 dependencies = [
+ "actix-files",
  "actix-multipart",
  "actix-web",
  "mime",
