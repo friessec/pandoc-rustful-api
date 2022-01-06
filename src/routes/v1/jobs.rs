@@ -74,14 +74,17 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
     let id = path.into_inner().0;
     let filepath = format!("{}/{}", config.pandoc.workdir, id);
     let pandoc_cmd = format!(r#"pandoc {} \
-        -o report.pdf\
+        -o {}.pdf\
         --from markdown+yaml_metadata_block+raw_html \
         --template eisvogel.tex \
         --table-of-contents \
         --toc-depth 6 \
         --number-sections \
         --top-level-division=chapter \
-        --highlight-style breezedark"#, "report.md", );
+        --highlight-style breezedark"#,
+                             "report.md",
+                             config.pandoc.file_output_name
+    );
 
     log::debug!("In workdir: {}", filepath);
     log::debug!("Run: {}", pandoc_cmd);
@@ -101,10 +104,13 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
 
 #[api_v2_operation]
 pub async fn job_download(path: Path<(uuid::Uuid, )>,
-                         config: web::Data<AppSettings>)
-                         -> Result<actix_files::NamedFile, Error> {
+                          config: web::Data<AppSettings>)
+                          -> Result<actix_files::NamedFile, Error> {
     let id = path.into_inner().0;
-    let filepath = format!("{}/{}", config.pandoc.workdir, id);
+    let filepath = format!("{}/{}/{}.pdf",
+                           config.pandoc.workdir,
+                           id,
+                           config.pandoc.file_output_name);
 
-    Ok(NamedFile::open(filepath+"/report.pdf")?)
+    Ok(NamedFile::open(filepath)?)
 }

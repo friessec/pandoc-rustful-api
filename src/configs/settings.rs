@@ -20,6 +20,7 @@ impl Default for ConfigType {
 pub struct PandocSettings {
     pub binary: String,
     pub workdir: String,
+    pub file_output_name: String,
 }
 
 impl Default for PandocSettings {
@@ -28,6 +29,7 @@ impl Default for PandocSettings {
         Self {
             binary: DEFAULT_PANDOC_BINARY.to_string(),
             workdir: DEFAULT_WORKDIR.to_string(),
+            file_output_name: DEFAULT_OUTPUT_NAME.to_string(),
         }
     }
 }
@@ -62,6 +64,7 @@ impl Default for AppSettings {
             pandoc: PandocSettings {
                 binary: DEFAULT_PANDOC_BINARY.to_string(),
                 workdir: DEFAULT_WORKDIR.to_string(),
+                file_output_name: DEFAULT_OUTPUT_NAME.to_string(),
             }
         }
     }
