@@ -35,8 +35,9 @@ pub async fn job_get(path: Path<(uuid::Uuid, )>)
 
 #[api_v2_operation]
 pub async fn job_delete(path: Path<(uuid::Uuid, )>) -> Result<Json<Job>, ()> {
+    let (id,) = path.into_inner();
     let job = Job {
-        id: Option::from(path.into_inner().0),
+        id: Option::from(id),
     };
     Ok(Json(job))
 }
@@ -45,7 +46,7 @@ pub async fn job_delete(path: Path<(uuid::Uuid, )>) -> Result<Json<Job>, ()> {
 pub async fn job_upload(path: Path<(uuid::Uuid, )>,
                         config: web::Data<AppSettings>, mut payload: Multipart)
                         -> Result<HttpResponse, Error> {
-    let id = path.into_inner().0;
+    let (id,) = path.into_inner();
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition = field
             .content_disposition()
@@ -56,7 +57,10 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
             |file| sanitize_filename::sanitize(file),
         );
 
-        let filepath = format!("{}/{}/{}", config.pandoc.workdir, id, filename);
+        let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
+        filepath.push(id.to_string());
+        filepath.push("upload");
+        filepath.push(filename);
 
         let mut file = web::block(|| std::fs::File::create(filepath)).await?;
         while let Some(chunk) = field.try_next().await? {
@@ -71,8 +75,10 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
 pub async fn job_process(path: Path<(uuid::Uuid, )>,
                          config: web::Data<AppSettings>)
                          -> Result<HttpResponse, Error> {
-    let id = path.into_inner().0;
-    let filepath = format!("{}/{}", config.pandoc.workdir, id);
+    let (id,) = path.into_inner();
+    let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
+    filepath.push(id.to_string());
+
     let pandoc_cmd = format!(r#"pandoc {} \
         -o {}.pdf\
         --from markdown+yaml_metadata_block+raw_html \
@@ -82,11 +88,11 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
         --number-sections \
         --top-level-division=chapter \
         --highlight-style breezedark"#,
-                             "report.md",
+                             "upload/report.md",
                              config.pandoc.file_output_name
     );
 
-    log::debug!("In workdir: {}", filepath);
+    log::debug!("In workdir: {}", filepath.display());
     log::debug!("Run: {}", pandoc_cmd);
 
     let output = web::block(move || std::process::Command::new("sh")
@@ -106,11 +112,10 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
 pub async fn job_download(path: Path<(uuid::Uuid, )>,
                           config: web::Data<AppSettings>)
                           -> Result<actix_files::NamedFile, Error> {
-    let id = path.into_inner().0;
-    let filepath = format!("{}/{}/{}.pdf",
-                           config.pandoc.workdir,
-                           id,
-                           config.pandoc.file_output_name);
+    let (id,) = path.into_inner();
+    let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
+    filepath.push(id.to_string());
+    filepath.push(config.pandoc.file_output_name.to_string() + ".pdf");
 
     Ok(NamedFile::open(filepath)?)
 }

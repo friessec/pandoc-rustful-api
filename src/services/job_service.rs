@@ -46,10 +46,15 @@ pub fn create(workdir: &str) -> Json<Job> {
 
     let path = job_dir(id.unwrap().to_string().as_str(), workdir);
 
-
-    match std::fs::create_dir(path.clone()) {
+    match std::fs::create_dir_all(path.clone()) {
         Ok(_) => log::debug!("Created new job directory: {}", path.to_str().unwrap()),
         Err(_) =>log::warn!("Job directory does already exist: {}", path.to_str().unwrap()),
+    };
+
+    let upload_dir = path.join("upload");
+    match std::fs::create_dir_all(upload_dir.clone()) {
+        Ok(_) => log::debug!("Created upload directory: {}", upload_dir.to_str().unwrap()),
+        Err(_) =>log::warn!("Upload directory does already exist: {}", upload_dir.to_str().unwrap()),
     };
 
     let job = Job {
