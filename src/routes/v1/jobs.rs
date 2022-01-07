@@ -28,25 +28,32 @@ pub async fn job_create(config: web::Data<AppSettings>)
 pub async fn job_get(path: Path<(uuid::Uuid, )>,
                      config: web::Data<AppSettings>)
                      -> Result<Json<Job>, ()> {
-    let (id,) = path.into_inner();
+    let (id, ) = path.into_inner();
     let job = job_service::get(config.pandoc.workdir.as_str(), id);
     Ok(Json(job))
 }
 
 #[api_v2_operation]
-pub async fn job_delete(path: Path<(uuid::Uuid, )>) -> Result<Json<Job>, ()> {
-    let (id,) = path.into_inner();
-    let job = Job {
-        id: Option::from(id),
+pub async fn job_delete(path: Path<(uuid::Uuid, )>,
+                        config: web::Data<AppSettings>)
+                        -> Result<HttpResponse, Error> {
+    let (id, ) = path.into_inner();
+    let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
+    filepath.push(id.to_string());
+
+    log::debug!("Remove job directory: {}", filepath.to_str().unwrap());
+    match std::fs::remove_dir_all(filepath) {
+        Ok(_) => (),
+        Err(_) => return Err(HttpResponse::NoContent().into())
     };
-    Ok(Json(job))
+    Ok(HttpResponse::Ok().into())
 }
 
 #[api_v2_operation]
 pub async fn job_upload(path: Path<(uuid::Uuid, )>,
                         config: web::Data<AppSettings>, mut payload: Multipart)
                         -> Result<HttpResponse, Error> {
-    let (id,) = path.into_inner();
+    let (id, ) = path.into_inner();
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition = field
             .content_disposition()
@@ -75,7 +82,7 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
 pub async fn job_process(path: Path<(uuid::Uuid, )>,
                          config: web::Data<AppSettings>)
                          -> Result<HttpResponse, Error> {
-    let (id,) = path.into_inner();
+    let (id, ) = path.into_inner();
     let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
     filepath.push(id.to_string());
 
@@ -112,7 +119,7 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
 pub async fn job_download(path: Path<(uuid::Uuid, )>,
                           config: web::Data<AppSettings>)
                           -> Result<actix_files::NamedFile, Error> {
-    let (id,) = path.into_inner();
+    let (id, ) = path.into_inner();
     let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
     filepath.push(id.to_string());
     filepath.push(config.pandoc.file_output_name.to_string() + ".pdf");
