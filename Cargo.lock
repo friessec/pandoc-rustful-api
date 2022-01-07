@@ -1118,6 +1118,7 @@ dependencies = [
  "paperclip",
  "sanitize-filename",
  "serde",
+ "serde_json",
  "toml",
  "uuid",
 ]
