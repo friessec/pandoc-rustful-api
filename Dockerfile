@@ -78,6 +78,7 @@ RUN addgroup -g 1000 webapp \
 
 WORKDIR /home/webapp/app/
 COPY --chown=webapp:webapp --from=builder /usr/src/webapp/target/x86_64-unknown-linux-musl/release/pandoc-rustful-api .
+COPY --chown=webapp:webapp static static
 COPY Settings.toml .
 
 # Switch to user and start the webservice
@@ -87,7 +88,7 @@ RUN mkdir -p ${TEMPLATE_DIR} \
     && mkdir -p /home/webapp/pandoc
 
 # Deploy templates
-RUN wget ${EISVOGEL_GIT}/v${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATE_DIR}/eisvogel.latex
+RUN wget ${EISVOGEL_GIT}/v${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATE_DIR}/eisvogel.tex
 
 EXPOSE ${ACTIX_PORT}
 ENTRYPOINT ["/home/webapp/app/pandoc-rustful-api"]
