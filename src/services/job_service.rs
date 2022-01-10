@@ -7,9 +7,7 @@ use crate::models::job::Job;
 
 fn job_dir(id: &str, path: &str) -> PathBuf {
     let workdir = Path::new(path);
-    let job_dir = workdir.join(id);
-
-    job_dir
+    workdir.join(id)
 }
 
 fn err_job() -> Job {
@@ -47,12 +45,10 @@ fn load_job(workdir: &str, id: Uuid) -> Job {
     };
     let reader = BufReader::new( file);
 
-    let job = match serde_json::from_reader(reader) {
+    match serde_json::from_reader(reader) {
         Ok(job) => job,
         Err(_) => err_job()
-    };
-
-    job
+    }
 }
 
 pub fn find_all() -> Json<Vec<Job>> {
@@ -97,7 +93,5 @@ pub fn create(workdir: &str) -> Job {
 }
 
 pub fn get(workdir: &str, id: Uuid) -> Job {
-    let job = load_job(workdir, id);
-
-    job
+    load_job(workdir, id)
 }

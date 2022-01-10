@@ -61,7 +61,7 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
 
         let filename = content_disposition.get_filename().map_or_else(
             || Uuid::new_v4().to_string(),
-            |file| sanitize_filename::sanitize(file),
+            sanitize_filename::sanitize,
         );
 
         let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
