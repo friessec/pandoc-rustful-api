@@ -9,10 +9,12 @@ mod services;
 mod utils;
 
 use actix_web::{App, HttpServer};
+//use actix_web_httpauth::middleware::HttpAuthentication;
 use paperclip::actix::OpenApiExt;
 use configs::constants;
 use crate::configs::settings::AppSettings;
 use crate::constants::*;
+//use crate::middlewares::authentication::validate_token;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -26,11 +28,12 @@ async fn main() -> std::io::Result<()> {
     create_work_directory(settings.clone())?;
 
     let bind_addr = format!("{}:{}", DEFAULT_INTERFACE, DEFAULT_PORT);
-
     let server = HttpServer::new(move || {
+        //let auth = HttpAuthentication::bearer(validate_token);
         App::new()
             .data(settings.clone())
             .wrap(actix_web::middleware::Logger::default())
+            //.wrap(auth)
             .wrap_api()
             .configure(routes::api::configuration)
             .with_json_spec_at("/swagger-ui/swagger.json")
