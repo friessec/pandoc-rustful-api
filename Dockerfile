@@ -1,4 +1,4 @@
-FROM rust:1.57-slim as builder
+FROM rust:1.58-slim as builder
 
 RUN apt-get update \
     && apt-get install -y musl-tools \
@@ -13,20 +13,20 @@ WORKDIR /usr/src/webapp
 COPY Cargo.toml Cargo.toml
 RUN mkdir src/ \
     && echo "fn main() {println!(\"if you see this, the build broke\")}" > src/main.rs
-RUN cargo build --release --target=x86_64-unknown-linux-musl
+RUN cargo build --bin pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
 RUN rm -f target/x86_64-unknown-linux-musl/release/deps/pandoc-rustful-api*
 
 # Build Main Application
 COPY . .
 
 # compile with musl and strip afterwards to reduce size
-RUN cargo build --release --target=x86_64-unknown-linux-musl
+RUN cargo build --bin pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
 RUN strip target/x86_64-unknown-linux-musl/release/pandoc-rustful-api
 
 ###############
 # Web Container
 ###############
-FROM pandoc/latex:latest
+FROM pandoc/latex:2.11
 
 ENV ACTIX_PROFILE="production"
 ENV ACTIX_PORT=8000
@@ -40,6 +40,7 @@ RUN tlmgr update --self && \
         # Eisvogel: https://github.com/Wandmalfarbe/pandoc-latex-template/blob/master/.travis.yml \
         adjustbox \
         awesomebox \
+        babel-german \
         background \
         bidi \
         collectbox \
