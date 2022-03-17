@@ -1,4 +1,4 @@
-FROM rust:1.58-slim as builder
+FROM rust:1.59-slim as builder
 
 RUN apt-get update \
     && apt-get install -y musl-tools \
@@ -21,19 +21,19 @@ COPY . .
 
 # compile with musl and strip afterwards to reduce size
 RUN cargo build --bin pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
-RUN strip target/x86_64-unknown-linux-musl/release/pandoc-rustful-api
 
 ###############
 # Web Container
 ###############
-FROM pandoc/latex:2.11
+FROM pandoc/latex:2.17
 
 ENV ACTIX_PROFILE="production"
 ENV ACTIX_PORT=8000
 
 ARG TEMPLATE_DIR=/home/webapp/.pandoc/templates/
 ARG EISVOGEL_GIT=https://raw.githubusercontent.com/Wandmalfarbe/pandoc-latex-template
-ARG EISVOGEL_VERSION=2.0.0
+#ARG EISVOGEL_VERSION=v2.0.0
+ARG EISVOGEL_VERSION=master
 
 RUN tlmgr update --self && \
     tlmgr install \
@@ -54,6 +54,7 @@ RUN tlmgr update --self && \
         footnotebackref \
         framed \
         fvextra \
+        koma-script \
         letltxmacro \
         ly1 \
         mdframed \
@@ -89,7 +90,7 @@ RUN mkdir -p ${TEMPLATE_DIR} \
     && mkdir -p /home/webapp/pandoc
 
 # Deploy templates
-RUN wget ${EISVOGEL_GIT}/v${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATE_DIR}/eisvogel.tex
+RUN wget ${EISVOGEL_GIT}/${EISVOGEL_VERSION}/eisvogel.tex -O ${TEMPLATE_DIR}/eisvogel.tex
 
 EXPOSE ${ACTIX_PORT}
 ENTRYPOINT ["/home/webapp/app/pandoc-rustful-api"]
