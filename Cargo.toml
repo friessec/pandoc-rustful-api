@@ -32,3 +32,6 @@ features = ["actix", "actix-multipart", "actix-files", "uuid"]
 [dependencies.uuid]
 version = "0.8"
 features = ["serde", "v4"]
+
+[profile.release]
+strip = "debuginfo"
