@@ -25,6 +25,10 @@ log = "0.4"
 sanitize-filename = "0.3"
 futures-util = "0.3"
 
+[dependencies.clap]
+version = "3.1"
+features = ["derive", "env"]
+
 [dependencies.paperclip]
 version = "0.6"
 features = ["actix", "actix-multipart", "actix-files", "uuid"]
