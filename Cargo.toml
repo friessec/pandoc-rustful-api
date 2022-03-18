@@ -37,5 +37,13 @@ features = ["actix", "actix-multipart", "actix-files", "uuid"]
 version = "0.8"
 features = ["serde", "v4"]
 
+[dependencies.reqwest]
+version = "0.11"
+features = ["json"]
+
+[dependencies.tokio]
+version = "1"
+features = ["full"]
+
 [profile.release]
 strip = "debuginfo"

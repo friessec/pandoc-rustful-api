@@ -1,13 +1,14 @@
+mod client;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(version, about, long_about = None)]
 #[clap(propagate_version = true)]
 struct Cli {
-    #[clap(env = "SERVER_ADDRESS", default_value = "localhost")]
-    server_address: String,
-    #[clap(env = "SERVER_PORT", default_value = "8000", parse(try_from_str))]
-    server_port: usize,
+    #[clap(long, env = "SERVER_ADDRESS", default_value = "http://localhost")]
+    address: String,
+    #[clap(long, env = "SERVER_PORT", default_value = "8000", parse(try_from_str))]
+    port: usize,
     #[clap(subcommand)]
     command: Commands,
 }
@@ -21,7 +22,7 @@ enum Commands {
     #[clap(about = "Job specific commands, requires a valid ID")]
     Job {
         #[clap(required = true, env = "JOB_ID")]
-        id: String,
+        id: uuid::Uuid,
         #[clap(subcommand)]
         task: Tasks,
     },
@@ -39,23 +40,23 @@ enum Tasks {
     Download {},
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
     let cli = Cli::parse();
+    let client = crate::client::Client::new(cli.address, cli.port);
 
-    println!("{}:{}", cli.server_address, cli.server_port);
 
     match &cli.command {
         Commands::List {} => {
-            println!("List")
+            client.list().await?;
         }
         Commands::Create {} => {
-            println!("Create")
+            client.create().await?;
         }
         Commands::Job { id, task } => {
-            println!("Job {}", id);
             match &task {
                 Tasks::Status {} => {
-                    println!("Status")
+                    client.status(id).await?;
                 }
                 Tasks::Delete {} => {
                     println!("Delete")
@@ -72,4 +73,6 @@ fn main() {
             }
         }
     }
+
+    Ok(())
 }
