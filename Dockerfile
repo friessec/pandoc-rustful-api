@@ -11,16 +11,21 @@ WORKDIR /usr/src/webapp
 
 # Pre-Build Dependencies
 COPY Cargo.toml Cargo.toml
-RUN mkdir src/ \
-    && echo "fn main() {println!(\"if you see this, the build broke\")}" > src/main.rs
-RUN cargo build --bin pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
+COPY api/Cargo.toml api/Cargo.toml
+RUN mkdir -p api/src/ \
+    && echo "fn main() {println!(\"if you see this, the build broke\")}" > api/src/main.rs \
+    && mkdir -p cli-tool/src  \
+    && echo "[package]\nname = \"pandoc-rustful-cli\"\nversion = \"0.1.0\"" > cli-tool/Cargo.toml \
+    && echo "fn main() {println!(\"if you see this, the build broke\")}" > cli-tool/src/main.rs
+
+RUN cargo build --package pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
 RUN rm -f target/x86_64-unknown-linux-musl/release/deps/pandoc-rustful-api*
 
 # Build Main Application
 COPY . .
 
 # compile with musl and strip afterwards to reduce size
-RUN cargo build --bin pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
+RUN cargo build --package pandoc-rustful-api --release --target=x86_64-unknown-linux-musl
 
 ###############
 # Web Container
