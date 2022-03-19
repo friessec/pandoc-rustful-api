@@ -1,4 +1,3 @@
-use reqwest::Error;
 use serde::{Serialize, Deserialize};
 
 pub struct Client {
@@ -48,7 +47,7 @@ impl Client {
     }
 
     pub async fn status(&self, id: &uuid::Uuid) -> Result<(), reqwest::Error> {
-        let url = self.uri_builder(format!("jobs/{}", id.to_string()).as_str());
+        let url = self.uri_builder(format!("jobs/{}", id).as_str());
         let res = self.get(url).await?;
 
         let job = res.json::<Job>().await?;
@@ -56,7 +55,45 @@ impl Client {
         Ok(())
     }
 
+    pub async fn delete(&self, id: &uuid::Uuid) -> Result<(), reqwest::Error> {
+        let url = self.uri_builder(format!("jobs/{}", id).as_str());
+        let res = self.get(url).await?;
 
+        let job = res.json::<Job>().await?;
+        println!("{:#?}", job);
+        Ok(())
+    }
+
+    pub async fn upload(&self, id: &uuid::Uuid, file: &str) -> Result<(), reqwest::Error> {
+        let url = self.uri_builder(format!("jobs/{}", id).as_str());
+        let res = self.get(url).await?;
+
+        let job = res.json::<Job>().await?;
+        println!("{:#?}", job);
+        Ok(())
+    }
+
+    pub async fn process(&self, id: &uuid::Uuid) -> Result<(), reqwest::Error> {
+        let url = self.uri_builder(format!("jobs/{}", id).as_str());
+        let res = self.get(url).await?;
+
+        let job = res.json::<Job>().await?;
+        println!("{:#?}", job);
+        Ok(())
+    }
+
+    pub async fn download(&self, id: &uuid::Uuid, file: &str) -> Result<(), reqwest::Error> {
+        let url = self.uri_builder(format!("jobs/{}", id).as_str());
+        let res = self.get(url).await?;
+
+        let job = res.json::<Job>().await?;
+        println!("{:#?}", job);
+        Ok(())
+    }
+
+    ////////////////////////////
+    // HELPER functions
+    ////////////////////////////
     async fn get(&self, url: String) -> Result<reqwest::Response, reqwest::Error> {
         let res = reqwest::get(url).await?;
         if res.status().is_server_error() {

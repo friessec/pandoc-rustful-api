@@ -37,14 +37,16 @@ enum Tasks {
         file: String
     },
     Process {},
-    Download {},
+    Download {
+        #[clap(required = true)]
+        file: String
+    },
 }
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
     let cli = Cli::parse();
     let client = crate::client::Client::new(cli.address, cli.port);
-
 
     match &cli.command {
         Commands::List {} => {
@@ -59,16 +61,16 @@ async fn main() -> Result<(), reqwest::Error> {
                     client.status(id).await?;
                 }
                 Tasks::Delete {} => {
-                    println!("Delete")
+                    client.delete(id).await?;
                 }
                 Tasks::Upload { file } => {
-                    println!("Upload")
+                    client.upload(id, file).await?;
                 }
                 Tasks::Process {} => {
-                    println!("Process")
+                    client.process(id).await?;
                 }
-                Tasks::Download {} => {
-                    println!("Download")
+                Tasks::Download { file} => {
+                    client.download(id, file).await?;
                 }
             }
         }
