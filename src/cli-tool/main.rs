@@ -46,7 +46,7 @@ enum Tasks {
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
     let cli = Cli::parse();
-    let client = crate::client::Client::new(cli.address, cli.port);
+    let client = crate::client::Client::new(&cli.address, cli.port);
 
     match &cli.command {
         Commands::List {} => {

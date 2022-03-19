@@ -1400,6 +1400,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio 1.17.0",
+ "tokio-util 0.6.9",
  "toml",
  "uuid",
 ]
@@ -1766,6 +1767,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mime",
+ "mime_guess",
  "native-tls",
  "percent-encoding",
  "pin-project-lite 0.2.8",
@@ -1774,6 +1776,7 @@ dependencies = [
  "serde_urlencoded",
  "tokio 1.17.0",
  "tokio-native-tls",
+ "tokio-util 0.6.9",
  "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",

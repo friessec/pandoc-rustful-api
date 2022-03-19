@@ -37,13 +37,18 @@ features = ["actix", "actix-multipart", "actix-files", "uuid"]
 version = "0.8"
 features = ["serde", "v4"]
 
+# CLI dependencies
 [dependencies.reqwest]
 version = "0.11"
-features = ["json"]
+features = ["json", "multipart", "stream"]
 
 [dependencies.tokio]
 version = "1"
 features = ["full"]
+
+[dependencies.tokio-util]
+version = "~0.6"
+features = ["codec"]
 
 [profile.release]
 strip = "debuginfo"
