@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 use std::io::Cursor;
+use log::{error, info};
 use reqwest::multipart;
 use serde::{Serialize, Deserialize};
 use tokio::fs::File;
@@ -28,9 +29,9 @@ impl Client {
         let res = self.call_get(url).await?;
 
         let jobs = res.json::<Vec<Job>>().await?;
-        println!("\nJob List:");
+        info!("\nJob List:");
         for job in jobs.iter() {
-            println!("\t{}", job.id.unwrap());
+            info!("\t{}", job.id.unwrap());
         }
         Ok(())
     }
@@ -42,12 +43,12 @@ impl Client {
 
         let res = client.post(url).send().await?;
         if res.status().is_server_error() {
-            eprintln!("Response: {:?} {}", res.version(), res.status());
-            eprintln!("Headers: {:#?}\n", res.headers());
+            error!("Response: {:?} {}", res.version(), res.status());
+            error!("Headers: {:#?}\n", res.headers());
             return Ok(());
         }
         let job = res.json::<Job>().await?;
-        println!("Created new job: {}", job.id.unwrap());
+        info!("Created new job: {}", job.id.unwrap());
         Ok(())
     }
 
@@ -56,7 +57,7 @@ impl Client {
         let res = self.call_get(url).await?;
 
         let job = res.json::<Job>().await?;
-        println!("{:#?}", job);
+        info!("{:#?}", job);
         Ok(())
     }
 
@@ -65,7 +66,7 @@ impl Client {
         let res = self.call_delete(url).await?;
 
         let _job = res.text().await?;
-        println!("Deleted job {}", id);
+        info!("Deleted job {}", id);
         Ok(())
     }
 
@@ -91,8 +92,8 @@ impl Client {
             .await?;
 
         if res.status().is_server_error() {
-            eprintln!("Response: {:?} {}", res.version(), res.status());
-            eprintln!("Headers: {:#?}\n", res.headers());
+            error!("Response: {:?} {}", res.version(), res.status());
+            error!("Headers: {:#?}\n", res.headers());
             return Ok(());
         }
         Ok(())
@@ -102,7 +103,7 @@ impl Client {
         let url = self.uri_builder(format!("jobs/{}/process", id).as_str());
         let _res = self.call_get(url).await?;
 
-        println!("Report generated");
+        info!("Report generated");
         Ok(())
     }
 
@@ -123,8 +124,8 @@ impl Client {
     async fn call_get(&self, url: String) -> Result<reqwest::Response, reqwest::Error> {
         let res = reqwest::get(url).await?;
         if res.status().is_server_error() {
-            eprintln!("Response: {:?} {}", res.version(), res.status());
-            eprintln!("Headers: {:#?}\n", res.headers());
+            error!("Response: {:?} {}", res.version(), res.status());
+            error!("Headers: {:#?}\n", res.headers());
             return res.error_for_status();
         }
         Ok(res)
@@ -136,8 +137,8 @@ impl Client {
 
         let res = client.delete(url).send().await?;
         if res.status().is_server_error() {
-            eprintln!("Response: {:?} {}", res.version(), res.status());
-            eprintln!("Headers: {:#?}\n", res.headers());
+            error!("Response: {:?} {}", res.version(), res.status());
+            error!("Headers: {:#?}\n", res.headers());
             return res.error_for_status();
         }
         Ok(res)
