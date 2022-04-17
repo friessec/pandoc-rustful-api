@@ -5,9 +5,9 @@ authors = ["Christian Fries <christian.fries123@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-actix-web = "3"
-actix-files = "0.5"
-actix-multipart = "0.3"
+actix-web = "4.0"
+actix-files = "0.6"
+actix-multipart = "0.4"
 #actix-web-httpauth = "0.5.1"
 serde = "1.0"
 serde_json = "1.0"
@@ -18,8 +18,8 @@ sanitize-filename = "0.3"
 futures-util = "0.3"
 
 [dependencies.paperclip]
-version = "0.6"
-features = ["actix", "actix-multipart", "actix-files", "uuid"]
+version = "0.7.0"
+features = ["actix4", "actix-multipart", "actix-files", "uuid"]
 
 [dependencies.uuid]
 version = "0.8"
