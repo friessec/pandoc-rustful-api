@@ -45,3 +45,10 @@ Proin tellus nibh, cursus ac metus sed, euismod fermentum orci.
 Phasellus non erat luctus, feugiat sem in, tempus tellus.
 Suspendisse volutpat a sem et bibendum.
 Aliquam aliquet diam in tincidunt pretium.
+
+```shell
+#!/bin/zsh
+
+echo Hello
+
+```

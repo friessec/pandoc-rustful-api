@@ -1,4 +1,4 @@
-FROM rust:1.59-slim as builder
+FROM rust:1.60-slim as builder
 
 RUN apt-get update \
     && apt-get install -y musl-tools \
@@ -30,7 +30,7 @@ RUN cargo build --package pandoc-rustful-api --release --target=x86_64-unknown-l
 ###############
 # Web Container
 ###############
-FROM pandoc/latex:2.17
+FROM pandoc/latex:2.18
 
 ENV ACTIX_PROFILE="production"
 ENV ACTIX_PORT=8000
@@ -61,6 +61,7 @@ RUN tlmgr update --self && \
         fvextra \
         koma-script \
         letltxmacro \
+        lineno \
         ly1 \
         mdframed \
         mweights \

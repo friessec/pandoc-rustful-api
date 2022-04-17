@@ -1,7 +1,7 @@
 use std::io::Write;
 use actix_files::NamedFile;
 use actix_multipart::Multipart;
-use actix_web::Error;
+use actix_web::{Error, error};
 use futures_util::TryStreamExt as _;
 use paperclip::actix::{api_v2_operation, web, web::Json, web::Path};
 use paperclip::actix::web::HttpResponse;
@@ -13,13 +13,13 @@ use crate::services::job_service;
 
 #[api_v2_operation]
 pub async fn job_list()
-    -> Result<Json<Vec<Job>>, ()> {
+    -> Result<Json<Vec<Job>>, Error> {
     Ok(job_service::find_all())
 }
 
 #[api_v2_operation]
 pub async fn job_create(config: web::Data<AppSettings>)
-                        -> Result<Json<Job>, ()> {
+                        -> Result<Json<Job>, Error> {
     let job = job_service::create(config.pandoc.workdir.as_str());
     Ok(Json(job))
 }
@@ -27,7 +27,7 @@ pub async fn job_create(config: web::Data<AppSettings>)
 #[api_v2_operation]
 pub async fn job_get(path: Path<(uuid::Uuid, )>,
                      config: web::Data<AppSettings>)
-                     -> Result<Json<Job>, ()> {
+                     -> Result<Json<Job>, Error> {
     let (id, ) = path.into_inner();
     let job = job_service::get(config.pandoc.workdir.as_str(), id);
     Ok(Json(job))
@@ -44,7 +44,7 @@ pub async fn job_delete(path: Path<(uuid::Uuid, )>,
     log::debug!("Remove job directory: {}", filepath.to_str().unwrap());
     match std::fs::remove_dir_all(filepath) {
         Ok(_) => (),
-        Err(_) => return Err(HttpResponse::NoContent().into())
+        Err(_) => return Err(error::ErrorNotFound("Could not delete this job"))
     };
     Ok(HttpResponse::Ok().into())
 }
@@ -55,9 +55,7 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
                         -> Result<HttpResponse, Error> {
     let (id, ) = path.into_inner();
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field
-            .content_disposition()
-            .ok_or_else(|| HttpResponse::BadRequest().finish())?;
+        let content_disposition = field.content_disposition();
 
         let filename = content_disposition.get_filename().map_or_else(
             || Uuid::new_v4().to_string(),
@@ -69,9 +67,9 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
         filepath.push("upload");
         filepath.push(filename);
 
-        let mut file = web::block(|| std::fs::File::create(filepath)).await?;
+        let mut file = web::block(|| std::fs::File::create(filepath)).await??;
         while let Some(chunk) = field.try_next().await? {
-            file = web::block(move || file.write_all(&chunk).map(|_| file)).await?;
+            file = web::block(move || file.write_all(&chunk).map(|_| file)).await??;
         }
     }
 
@@ -106,10 +104,10 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
         .arg("-c")
         .arg(pandoc_cmd)
         .current_dir(filepath)
-        .output()).await?;
+        .output()).await?.unwrap();
     if !output.status.success() {
         log::error!("Pandoc error: {}", String::from_utf8(output.stderr).unwrap());
-        return Err(HttpResponse::InternalServerError().into());
+        return Err(error::ErrorInternalServerError("Could not process files"));
     }
 
     Ok(HttpResponse::Ok().into())

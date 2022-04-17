@@ -8,7 +8,7 @@ mod routes;
 mod services;
 mod utils;
 
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, web};
 //use actix_web_httpauth::middleware::HttpAuthentication;
 use paperclip::actix::OpenApiExt;
 use configs::constants;
@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
     let server = HttpServer::new(move || {
         //let auth = HttpAuthentication::bearer(validate_token);
         App::new()
-            .data(settings.clone())
+            .app_data(web::Data::new(settings.clone()))
             .wrap(actix_web::middleware::Logger::default())
             //.wrap(auth)
             .wrap_api()
