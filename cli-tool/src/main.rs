@@ -61,7 +61,7 @@ enum Tasks {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
+async fn main() -> Result<(), anyhow::Error> {
     let cli = Cli::parse();
     env_logger::Builder::new()
         .format(|buf, record| {

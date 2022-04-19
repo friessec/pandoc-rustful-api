@@ -5,6 +5,7 @@ use reqwest::multipart;
 use serde::{Serialize, Deserialize};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
+use anyhow::Result;
 
 pub struct Client {
     api_address: String,
@@ -24,7 +25,7 @@ impl Client {
         Client { api_address: format!("{}:{}/{}", address, port, api) }
     }
 
-    pub async fn list(&self) -> Result<(), reqwest::Error> {
+    pub async fn list(&self) -> Result<(), anyhow::Error> {
         let url = self.uri_builder("jobs");
         let res = self.call_get(url).await?;
 
@@ -36,7 +37,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn create(&self) -> Result<(), reqwest::Error> {
+    pub async fn create(&self) -> Result<(), anyhow::Error> {
         let url = self.uri_builder("jobs");
         let client = reqwest::Client::builder()
             .build()?;
@@ -52,7 +53,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn status(&self, id: &uuid::Uuid) -> Result<(), reqwest::Error> {
+    pub async fn status(&self, id: &uuid::Uuid) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}", id).as_str());
         let res = self.call_get(url).await?;
 
@@ -61,7 +62,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn delete(&self, id: &uuid::Uuid) -> Result<(), reqwest::Error> {
+    pub async fn delete(&self, id: &uuid::Uuid) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}", id).as_str());
         let res = self.call_delete(url).await?;
 
@@ -70,10 +71,10 @@ impl Client {
         Ok(())
     }
 
-    pub async fn upload(&self, id: &uuid::Uuid, file: &str) -> Result<(), reqwest::Error> {
+    pub async fn upload(&self, id: &uuid::Uuid, file: &str) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
 
-        let file = File::open(file).await.unwrap(); // FIXME error handling
+        let file = File::open(file).await?;
         let stream = FramedRead::new(file, BytesCodec::new());
 
         let stream = reqwest::Body::wrap_stream(stream);
@@ -99,7 +100,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn process(&self, id: &uuid::Uuid) -> Result<(), reqwest::Error> {
+    pub async fn process(&self, id: &uuid::Uuid) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}/process", id).as_str());
         let _res = self.call_get(url).await?;
 
@@ -107,14 +108,13 @@ impl Client {
         Ok(())
     }
 
-    pub async fn download(&self, id: &uuid::Uuid, file: &str) -> Result<(), reqwest::Error> {
+    pub async fn download(&self, id: &uuid::Uuid, file: &str) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}/download", id).as_str());
         let res = self.call_get(url).await?;
 
-        // FIXME error handling
-        let mut file = std::fs::File::create(file).unwrap();
+        let mut file = std::fs::File::create(file)?;
         let mut content =  Cursor::new(res.bytes().await?);
-        std::io::copy(&mut content, &mut file).unwrap();
+        std::io::copy(&mut content, &mut file)?;
         Ok(())
     }
 
