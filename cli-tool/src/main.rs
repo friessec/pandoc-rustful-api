@@ -12,7 +12,7 @@ struct LogArgs {
 fn log_level_filter(lvl: i8) -> log::LevelFilter {
     match lvl {
     0 => log::LevelFilter::Debug,
-    1 | _ => log::LevelFilter::Trace,
+    _ => log::LevelFilter::Trace,
     }
 }
 
