@@ -72,36 +72,38 @@ impl Client {
         Ok(())
     }
 
-    pub async fn upload(&self, id: &uuid::Uuid, file: &str) -> Result<(), anyhow::Error> {
-        let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
-        let filename = Path::new(file).file_name();
-        let filename = match filename {
-            Some(d) => d.to_string_lossy().into_owned(),
-            None => "".into(),
-        };
+    pub async fn upload(&self, id: &uuid::Uuid, files: &Vec<String>) -> Result<(), anyhow::Error> {
+        for file in files {
+            let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
+            let filename = Path::new(&file).file_name();
+            let filename = match filename {
+                Some(d) => d.to_string_lossy().into_owned(),
+                None => "".into(),
+            };
 
-        let file = File::open(file).await?;
+            let file = File::open(file).await?;
 
-        let stream = FramedRead::new(file, BytesCodec::new());
-        let stream = reqwest::Body::wrap_stream(stream);
-        let part = reqwest::multipart::Part::stream(stream)
-            .file_name(filename);
+            let stream = FramedRead::new(file, BytesCodec::new());
+            let stream = reqwest::Body::wrap_stream(stream);
+            let part = reqwest::multipart::Part::stream(stream)
+                .file_name(filename);
 
-        let form = multipart::Form::new()
-             .part("file_data", part);
+            let form = multipart::Form::new()
+                .part("file_data", part);
 
-        let client = reqwest::Client::new();
+            let client = reqwest::Client::new();
 
-        let res = client
-            .post(url)
-            .multipart(form)
-            .send()
-            .await?;
+            let res = client
+                .post(url)
+                .multipart(form)
+                .send()
+                .await?;
 
-        if res.status().is_server_error() {
-            error!("Response: {:?} {}", res.version(), res.status());
-            error!("Headers: {:#?}\n", res.headers());
-            return Ok(());
+            if res.status().is_server_error() {
+                error!("Response: {:?} {}", res.version(), res.status());
+                error!("Headers: {:#?}\n", res.headers());
+                return Ok(());
+            }
         }
         Ok(())
     }

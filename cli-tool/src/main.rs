@@ -50,8 +50,8 @@ enum Tasks {
     Status {},
     Delete {},
     Upload {
-        #[clap(required = true)]
-        file: String
+        #[clap(required = true, min_values = 1)]
+        files: Vec<String>
     },
     Process {},
     Download {
@@ -90,8 +90,8 @@ async fn main() -> Result<(), anyhow::Error> {
                 Tasks::Delete {} => {
                     client.delete(id).await?;
                 }
-                Tasks::Upload { file } => {
-                    client.upload(id, file).await?;
+                Tasks::Upload { files } => {
+                    client.upload(id, files).await?;
                 }
                 Tasks::Process {} => {
                     client.process(id).await?;
