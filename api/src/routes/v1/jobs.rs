@@ -104,7 +104,7 @@ pub async fn job_process(path: Path<(uuid::Uuid, )>,
         .arg("-c")
         .arg(pandoc_cmd)
         .current_dir(filepath)
-        .output()).await?.unwrap();
+        .output()).await??;
     if !output.status.success() {
         log::error!("Pandoc error: {}", String::from_utf8(output.stderr).unwrap());
         return Err(error::ErrorInternalServerError("Could not process files"));

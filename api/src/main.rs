@@ -1,5 +1,6 @@
-extern crate actix_web;
-extern crate log;
+use actix_web;
+use actix_cors::Cors;
+use log;
 
 mod configs;
 mod middlewares;
@@ -30,9 +31,11 @@ async fn main() -> std::io::Result<()> {
     let bind_addr = format!("{}:{}", DEFAULT_INTERFACE, DEFAULT_PORT);
     let server = HttpServer::new(move || {
         //let auth = HttpAuthentication::bearer(validate_token);
+        let cors = Cors::permissive();
         App::new()
             .app_data(web::Data::new(settings.clone()))
             .wrap(actix_web::middleware::Logger::default())
+            .wrap(cors)
             //.wrap(auth)
             .wrap_api()
             .configure(routes::api::configuration)

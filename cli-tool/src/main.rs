@@ -1,10 +1,27 @@
 mod client;
 use clap::{Parser, Subcommand};
+use std::io::Write as FmtWrite;
+use env_logger::WriteStyle;
+
+#[derive(clap::Args)]
+struct LogArgs {
+    #[clap(long, short = 'v', parse(from_occurrences))]
+    verbose: i8,
+}
+
+fn log_level_filter(lvl: i8) -> log::LevelFilter {
+    match lvl {
+    0 => log::LevelFilter::Debug,
+    _ => log::LevelFilter::Trace,
+    }
+}
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
 #[clap(propagate_version = true)]
 struct Cli {
+    #[clap(flatten)]
+    logging: LogArgs,
     #[clap(long, env = "SERVER_ADDRESS", default_value = "http://localhost")]
     address: String,
     #[clap(long, env = "SERVER_PORT", default_value = "8000", parse(try_from_str))]
@@ -44,10 +61,20 @@ enum Tasks {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
+async fn main() -> Result<(), anyhow::Error> {
     let cli = Cli::parse();
-    let client = crate::client::Client::new(&cli.address, cli.port);
+    env_logger::Builder::new()
+        .format(|buf, record| {
+            let mut style = buf.style();
+            style.set_bold(false);
+            writeln!(buf, "{}", style.value(record.args()))
+        })
+        .filter(Some("crate::client"), log::LevelFilter::Info)
+        .filter_level(log_level_filter(cli.logging.verbose))
+        .write_style(WriteStyle::Always)
+        .init();
 
+    let client = crate::client::Client::new(&cli.address, cli.port);
     match &cli.command {
         Commands::List {} => {
             client.list().await?;
