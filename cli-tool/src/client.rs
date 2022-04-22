@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 use std::io::Cursor;
+use std::path::Path;
 use log::{error, info};
 use reqwest::multipart;
 use serde::{Serialize, Deserialize};
@@ -73,13 +74,18 @@ impl Client {
 
     pub async fn upload(&self, id: &uuid::Uuid, file: &str) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
+        let filename = Path::new(file).file_name();
+        let filename = match filename {
+            Some(d) => d.to_string_lossy().into_owned(),
+            None => "".into(),
+        };
 
         let file = File::open(file).await?;
-        let stream = FramedRead::new(file, BytesCodec::new());
 
+        let stream = FramedRead::new(file, BytesCodec::new());
         let stream = reqwest::Body::wrap_stream(stream);
         let part = reqwest::multipart::Part::stream(stream)
-            .file_name("report.md");
+            .file_name(filename);
 
         let form = multipart::Form::new()
              .part("file_data", part);
