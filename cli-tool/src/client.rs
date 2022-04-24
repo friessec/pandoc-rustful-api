@@ -6,7 +6,9 @@ use reqwest::multipart;
 use serde::{Serialize, Deserialize};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
+use walkdir::WalkDir;
+use crate::compress::compress;
 
 pub struct Client {
     api_address: String,
@@ -75,8 +77,13 @@ impl Client {
     pub async fn upload(&self, id: &uuid::Uuid, files: &Vec<String>) -> Result<(), anyhow::Error> {
         for file in files {
             let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
-            let filename = Path::new(&file).file_name();
-            let filename = match filename {
+            let path = Path::new(&file);
+            if path.is_dir() {
+                log::info!("Omitting directory {}", path.display());
+                continue;
+            }
+
+            let filename = match  path.file_name() {
                 Some(d) => d.to_string_lossy().into_owned(),
                 None => "".into(),
             };
@@ -105,6 +112,49 @@ impl Client {
                 return Ok(());
             }
         }
+        Ok(())
+    }
+
+    pub async fn upload_dir(&self, id: &uuid::Uuid, directory: &String) -> Result<(), anyhow::Error> {
+        let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
+        if !Path::new(directory).is_dir() {
+            return Err(anyhow!("Provided argument is not a directory: {}", directory));
+        }
+
+        let walkdir = WalkDir::new(directory.to_string())
+            .follow_links(false)
+            .same_file_system(true);
+        let it = walkdir.into_iter();
+
+        let path = std::path::Path::new("/tmp/upload.zip");
+        let file = std::fs::File::create(&path)?;
+
+        compress(&mut it.filter_map(|e| e.ok()), directory, file ).await?;
+
+        let file = File::open(&path).await?;
+
+        let stream = FramedRead::new(file, BytesCodec::new());
+        let stream = reqwest::Body::wrap_stream(stream);
+        let part = reqwest::multipart::Part::stream(stream)
+            .file_name("upload.zip");
+
+        let form = multipart::Form::new()
+            .part("zip_data", part);
+
+        let client = reqwest::Client::new();
+
+        let res = client
+            .post(url)
+            .multipart(form)
+            .send()
+            .await?;
+
+        if res.status().is_server_error() {
+            error!("Response: {:?} {}", res.version(), res.status());
+            error!("Headers: {:#?}\n", res.headers());
+            return Ok(());
+        }
+
         Ok(())
     }
 

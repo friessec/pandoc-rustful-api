@@ -1,4 +1,5 @@
 mod client;
+mod compress;
 use clap::{Parser, Subcommand};
 use std::io::Write as FmtWrite;
 use env_logger::WriteStyle;
@@ -50,8 +51,10 @@ enum Tasks {
     Status {},
     Delete {},
     Upload {
-        #[clap(required = true, min_values = 1)]
-        files: Vec<String>
+        #[clap(required = false, min_values = 1)]
+        files: Vec<String>,
+        #[clap(required = false, short = 'd', default_value = "")]
+        directory: String,
     },
     Process {},
     Download {
@@ -90,8 +93,13 @@ async fn main() -> Result<(), anyhow::Error> {
                 Tasks::Delete {} => {
                     client.delete(id).await?;
                 }
-                Tasks::Upload { files } => {
-                    client.upload(id, files).await?;
+                Tasks::Upload { files, directory } => {
+                    if directory.is_empty() {
+                        client.upload(id, files).await?;
+                    }
+                    else {
+                        client.upload_dir(id, directory).await?;
+                    }
                 }
                 Tasks::Process {} => {
                     client.process(id).await?;
