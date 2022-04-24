@@ -57,7 +57,6 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
     while let Some(mut field) = payload.try_next().await? {
         let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
         filepath.push(id.to_string());
-        filepath.push("upload");
 
         if field.name() == "file_data" {
             let content_disposition = field.content_disposition();
@@ -65,6 +64,7 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
                 || Uuid::new_v4().to_string(),
                 sanitize_filename::sanitize,
             );
+            filepath.push("upload");
             filepath.push(filename);
 
             let mut file = web::block(|| std::fs::File::create(filepath)).await??;
@@ -74,7 +74,39 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
         }
         else if field.name() == "zip_data" {
             log::info!("Received zip file");
-            // TODO uncompress data
+            let mut upload_path = filepath.clone();
+            upload_path.push("upload");
+            filepath.push("tmp.zip");
+            let fp = filepath.clone();
+            let fp2 = filepath.clone();
+
+            let mut file = web::block(|| std::fs::File::create(filepath)).await??;
+            while let Some(chunk) = field.try_next().await? {
+                file = web::block(move || file.write_all(&chunk).map(|_| file)).await??;
+            }
+
+            let file = web::block(|| std::fs::File::open(fp)).await??;
+            let mut archive = zip::ZipArchive::new(&file).unwrap();
+            for i in 0..archive.len() {
+                let mut file = archive.by_index(i).unwrap();
+                let mut output_path = upload_path.clone();
+                output_path.push(file.mangled_name());
+
+                if (&*file.name()).ends_with('/') {
+                    log::debug!("File {} extracted to \"{}\"", i, output_path.as_path().display());
+                    std::fs::create_dir_all(&output_path)?;
+                } else {
+                    log::debug!("File {} extracted to \"{}\" ({} bytes)", i, output_path.as_path().display(), file.size());
+                    if let Some(p) = output_path.parent() {
+                        if !p.exists() {
+                            std::fs::create_dir_all(&p)?;
+                        }
+                    }
+                    let mut outfile = std::fs::File::create(&output_path)?;
+                    std::io::copy(&mut file, &mut outfile)?;
+                }
+            }
+            std::fs::remove_file(fp2)?;
         }
         else {
             log::warn!("Unknown data uploaded! Metadata {}", field.name())
