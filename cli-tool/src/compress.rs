@@ -24,8 +24,6 @@ pub async fn compress<T>(it: &mut dyn Iterator<Item=DirEntry>, prefix: &str, wri
         let path = entry.path();
         let name = path.strip_prefix(Path::new(prefix)).unwrap();
 
-        // Write file or directory explicitly
-        // Some unzip tools unzip files with directory paths correctly, some do not!
         if path.is_file() {
             log::info!("adding file {:?} as {:?} ...", path, name);
             zip.start_file(name.to_str().unwrap(), options)?;
@@ -36,8 +34,6 @@ pub async fn compress<T>(it: &mut dyn Iterator<Item=DirEntry>, prefix: &str, wri
             buffer.clear();
         }
         else if !name.as_os_str().is_empty() {
-            // Only if not root! Avoids path spec / warning
-            // and mapname conversion failed error on unzip
             log::info!("adding dir {:?} as {:?} ...", path, name);
             zip.add_directory(name.to_str().unwrap(), options)?;
         }
