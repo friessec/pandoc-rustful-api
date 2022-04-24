@@ -55,21 +55,29 @@ pub async fn job_upload(path: Path<(uuid::Uuid, )>,
                         -> Result<HttpResponse, Error> {
     let (id, ) = path.into_inner();
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition();
-
-        let filename = content_disposition.get_filename().map_or_else(
-            || Uuid::new_v4().to_string(),
-            sanitize_filename::sanitize,
-        );
-
         let mut filepath = std::path::PathBuf::from(&config.pandoc.workdir);
         filepath.push(id.to_string());
         filepath.push("upload");
-        filepath.push(filename);
 
-        let mut file = web::block(|| std::fs::File::create(filepath)).await??;
-        while let Some(chunk) = field.try_next().await? {
-            file = web::block(move || file.write_all(&chunk).map(|_| file)).await??;
+        if field.name() == "file_data" {
+            let content_disposition = field.content_disposition();
+            let filename = content_disposition.get_filename().map_or_else(
+                || Uuid::new_v4().to_string(),
+                sanitize_filename::sanitize,
+            );
+            filepath.push(filename);
+
+            let mut file = web::block(|| std::fs::File::create(filepath)).await??;
+            while let Some(chunk) = field.try_next().await? {
+                file = web::block(move || file.write_all(&chunk).map(|_| file)).await??;
+            }
+        }
+        else if field.name() == "zip_data" {
+            log::info!("Received zip file");
+            // TODO uncompress data
+        }
+        else {
+            log::warn!("Unknown data uploaded! Metadata {}", field.name())
         }
     }
 
