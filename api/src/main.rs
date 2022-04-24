@@ -1,6 +1,4 @@
-use actix_web;
 use actix_cors::Cors;
-use log;
 
 mod configs;
 mod middlewares;

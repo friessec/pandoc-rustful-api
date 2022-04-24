@@ -1,7 +1,9 @@
 mod client;
+mod compress;
 use clap::{Parser, Subcommand};
 use std::io::Write as FmtWrite;
 use env_logger::WriteStyle;
+use tempfile::NamedTempFile;
 
 #[derive(clap::Args)]
 struct LogArgs {
@@ -50,8 +52,10 @@ enum Tasks {
     Status {},
     Delete {},
     Upload {
-        #[clap(required = true)]
-        file: String
+        #[clap(required = false, min_values = 1)]
+        files: Vec<String>,
+        #[clap(required = false, short = 'd', default_value = "")]
+        directory: String,
     },
     Process {},
     Download {
@@ -90,14 +94,29 @@ async fn main() -> Result<(), anyhow::Error> {
                 Tasks::Delete {} => {
                     client.delete(id).await?;
                 }
-                Tasks::Upload { file } => {
-                    client.upload(id, file).await?;
+                Tasks::Upload { files, directory } => {
+                    if directory.is_empty() {
+                        client.upload(id, files).await?;
+                    }
+                    else {
+                        let temp_file = NamedTempFile::new()?;
+                        match client.upload_dir(id, directory, &temp_file).await {
+                            Ok(t) => {
+                                    drop(temp_file);
+                                    t
+                                },
+                            Err(e) => {
+                                    drop(temp_file);
+                                    return Err(e)
+                                },
+                        }
+                    }
                 }
                 Tasks::Process {} => {
                     client.process(id).await?;
                 }
                 Tasks::Download { file} => {
-                    client.download(id, file).await?;
+                    client.download(id, file, ).await?;
                 }
             }
         }
