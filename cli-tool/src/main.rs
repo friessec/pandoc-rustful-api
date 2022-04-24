@@ -99,7 +99,7 @@ async fn main() -> Result<(), anyhow::Error> {
                         client.upload(id, files).await?;
                     }
                     else {
-                        let mut temp_file = NamedTempFile::new()?;
+                        let temp_file = NamedTempFile::new()?;
                         match client.upload_dir(id, directory, &temp_file).await {
                             Ok(t) => {
                                     drop(temp_file);

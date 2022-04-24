@@ -28,17 +28,18 @@ pub async fn compress<T>(it: &mut dyn Iterator<Item=DirEntry>, prefix: &str, wri
         // Some unzip tools unzip files with directory paths correctly, some do not!
         if path.is_file() {
             log::info!("adding file {:?} as {:?} ...", path, name);
-            zip.start_file_from_path(name, options)?;
+            zip.start_file(name.to_str().unwrap(), options)?;
             let mut f = File::open(path)?;
 
             f.read_to_end(&mut buffer)?;
             zip.write_all(&*buffer)?;
             buffer.clear();
-        } else if name.as_os_str().len() != 0 {
+        }
+        else if !name.as_os_str().is_empty() {
             // Only if not root! Avoids path spec / warning
             // and mapname conversion failed error on unzip
             log::info!("adding dir {:?} as {:?} ...", path, name);
-            zip.add_directory_from_path(name, options)?;
+            zip.add_directory(name.to_str().unwrap(), options)?;
         }
     }
     zip.finish()?;

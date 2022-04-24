@@ -8,7 +8,6 @@ use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 use anyhow::{anyhow, Result};
 use tempfile::NamedTempFile;
-use tempfile::tempfile;
 use walkdir::WalkDir;
 use crate::compress::compress;
 
@@ -123,7 +122,7 @@ impl Client {
             return Err(anyhow!("Provided argument is not a directory: {}", directory));
         }
 
-        let walkdir = WalkDir::new(directory.to_string())
+        let walkdir = WalkDir::new(directory)
             .follow_links(false)
             .same_file_system(true);
         let it = walkdir.into_iter();
