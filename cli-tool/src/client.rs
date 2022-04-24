@@ -7,6 +7,8 @@ use serde::{Serialize, Deserialize};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 use anyhow::{anyhow, Result};
+use tempfile::NamedTempFile;
+use tempfile::tempfile;
 use walkdir::WalkDir;
 use crate::compress::compress;
 
@@ -115,7 +117,7 @@ impl Client {
         Ok(())
     }
 
-    pub async fn upload_dir(&self, id: &uuid::Uuid, directory: &String) -> Result<(), anyhow::Error> {
+    pub async fn upload_dir(&self, id: &uuid::Uuid, directory: &String, temp_file: &NamedTempFile) -> Result<(), anyhow::Error> {
         let url = self.uri_builder(format!("jobs/{}/upload", id).as_str());
         if !Path::new(directory).is_dir() {
             return Err(anyhow!("Provided argument is not a directory: {}", directory));
@@ -125,18 +127,15 @@ impl Client {
             .follow_links(false)
             .same_file_system(true);
         let it = walkdir.into_iter();
+        let path = temp_file.path().to_path_buf().clone();
+        log::info!("Temp File: {}", path.display());
+        compress(&mut it.filter_map(|e| e.ok()), directory, temp_file ).await?;
 
-        let path = std::path::Path::new("/tmp/upload.zip");
-        let file = std::fs::File::create(&path)?;
-
-        compress(&mut it.filter_map(|e| e.ok()), directory, file ).await?;
-
-        let file = File::open(&path).await?;
+        let file = File::open(path).await?;
 
         let stream = FramedRead::new(file, BytesCodec::new());
         let stream = reqwest::Body::wrap_stream(stream);
-        let part = reqwest::multipart::Part::stream(stream)
-            .file_name("upload.zip");
+        let part = reqwest::multipart::Part::stream(stream);
 
         let form = multipart::Form::new()
             .part("zip_data", part);

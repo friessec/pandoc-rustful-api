@@ -3,6 +3,7 @@ mod compress;
 use clap::{Parser, Subcommand};
 use std::io::Write as FmtWrite;
 use env_logger::WriteStyle;
+use tempfile::NamedTempFile;
 
 #[derive(clap::Args)]
 struct LogArgs {
@@ -98,14 +99,24 @@ async fn main() -> Result<(), anyhow::Error> {
                         client.upload(id, files).await?;
                     }
                     else {
-                        client.upload_dir(id, directory).await?;
+                        let mut temp_file = NamedTempFile::new()?;
+                        match client.upload_dir(id, directory, &temp_file).await {
+                            Ok(t) => {
+                                    drop(temp_file);
+                                    t
+                                },
+                            Err(e) => {
+                                    drop(temp_file);
+                                    return Err(e)
+                                },
+                        }
                     }
                 }
                 Tasks::Process {} => {
                     client.process(id).await?;
                 }
                 Tasks::Download { file} => {
-                    client.download(id, file).await?;
+                    client.download(id, file, ).await?;
                 }
             }
         }
